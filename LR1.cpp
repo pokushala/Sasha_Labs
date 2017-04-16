@@ -1,4 +1,4 @@
-// SashaLaba2.cpp: определяет точку входа для консольного приложения.
+// SashaLaba2.cpp: Г®ГЇГ°ГҐГ¤ГҐГ«ГїГҐГІ ГІГ®Г·ГЄГі ГўГµГ®Г¤Г  Г¤Г«Гї ГЄГ®Г­Г±Г®Г«ГјГ­Г®ГЈГ® ГЇГ°ГЁГ«Г®Г¦ГҐГ­ГЁГї.
 //
 
 #include <iostream>
@@ -38,16 +38,16 @@ int main()
 {
 	setlocale(LC_ALL, "RU");
 	std::string str;
-	std::cout << "Вариант 13.\n Якименко Александра\n 1)Увеличить числа встречающиеся один раз на 1\n 2)Заменить все числа на мах\n";
+	std::cout << "Г‚Г Г°ГЁГ Г­ГІ 13.\n ГџГЄГЁГ¬ГҐГ­ГЄГ® ГЂГ«ГҐГЄГ±Г Г­Г¤Г°Г \n 1)Г“ГўГҐГ«ГЁГ·ГЁГІГј Г·ГЁГ±Г«Г  ГўГ±ГІГ°ГҐГ·Г ГѕГ№ГЁГҐГ±Гї Г®Г¤ГЁГ­ Г°Г Г§ Г­Г  1\n 2)Г‡Г Г¬ГҐГ­ГЁГІГј ГўГ±ГҐ Г·ГЁГ±Г«Г  Г­Г  Г¬Г Гµ\n";
 #if DEBUG
-	std::cout << "Введите строку : ";
+	std::cout << "Г‚ГўГҐГ¤ГЁГІГҐ Г±ГІГ°Г®ГЄГі : ";
 	std::getline(std::cin, str);
 #else
 	str = "9 hey you 9999 lalala 56 some 5 and 56 hoho 0";
-	std::cout << "Введенная строка: " << str;
+	std::cout << "Г‚ГўГҐГ¤ГҐГ­Г­Г Гї Г±ГІГ°Г®ГЄГ : " << str;
 #endif
-	std::cout << std::endl << "Измененная строка1: " << incrementSingles(str) << std::endl;
-	std::cout << std::endl << "Измененная строка2: " << maximizeNumbers(str) << std::endl;
+	std::cout << std::endl << "Г€Г§Г¬ГҐГ­ГҐГ­Г­Г Гї Г±ГІГ°Г®ГЄГ 1: " << incrementSingles(str) << std::endl;
+	std::cout << std::endl << "Г€Г§Г¬ГҐГ­ГҐГ­Г­Г Гї Г±ГІГ°Г®ГЄГ 2: " << maximizeNumbers(str) << std::endl;
 	return 0;
 }
 
@@ -56,13 +56,13 @@ std::string incrementSingles(std::string str) {
 	std::vector<Number> number = get_number1(str);
 	std::string current_num;
 	
-	int difference = 0;//разница в длине старой и новой строки
+	int difference = 0;//Г°Г Г§Г­ГЁГ¶Г  Гў Г¤Г«ГЁГ­ГҐ Г±ГІГ Г°Г®Г© ГЁ Г­Г®ГўГ®Г© Г±ГІГ°Г®ГЄГЁ
 	for each (Number var in number){
-		if ((std::count(number.begin(), number.end(), var.num)) == 1) {//если количество встреч числа=1
+		if ((std::count(number.begin(), number.end(), var.num)) == 1) {//ГҐГ±Г«ГЁ ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГўГ±ГІГ°ГҐГ· Г·ГЁГ±Г«Г =1
 			var.num++;
 			current_num = std::to_string(var.num);
-			str.replace(var.first_index + difference, var.last_index - var.first_index, current_num);//перезаписываем
-			difference += current_num.size() - (var.last_index - var.first_index);//считаем разницу
+			str.replace(var.first_index + difference, var.last_index - var.first_index, current_num);//ГЇГҐГ°ГҐГ§Г ГЇГЁГ±Г»ГўГ ГҐГ¬
+			difference += current_num.size() - (var.last_index - var.first_index);//Г±Г·ГЁГІГ ГҐГ¬ Г°Г Г§Г­ГЁГ¶Гі
 		}
 
 	}
@@ -93,15 +93,15 @@ std::vector<Number> get_number1(std::string str) {
 	std::string nums = "1234567890";
 	std::string current_num;
 	size_t i = 0, j = 0;
-	while ((i = str.find_first_of(nums, j)) != std::string::npos) {	//пока есть цифры
-		j = str.find_first_not_of(nums, i);//находим где кончаются цифры
-		if (j == std::string::npos) {//случай когда число в конце
+	while ((i = str.find_first_of(nums, j)) != std::string::npos) {	//ГЇГ®ГЄГ  ГҐГ±ГІГј Г¶ГЁГґГ°Г»
+		j = str.find_first_not_of(nums, i);//Г­Г ГµГ®Г¤ГЁГ¬ ГЈГ¤ГҐ ГЄГ®Г­Г·Г ГѕГІГ±Гї Г¶ГЁГґГ°Г»
+		if (j == std::string::npos) {//Г±Г«ГіГ·Г Г© ГЄГ®ГЈГ¤Г  Г·ГЁГ±Г«Г® Гў ГЄГ®Г­Г¶ГҐ
 			j = str.size();
 		}
-		for (int k = i;k < j;k++) {//пока цифры записываем в текущее число
+		for (int k = i;k < j;k++) {//ГЇГ®ГЄГ  Г¶ГЁГґГ°Г» Г§Г ГЇГЁГ±Г»ГўГ ГҐГ¬ Гў ГІГҐГЄГіГ№ГҐГҐ Г·ГЁГ±Г«Г®
 			current_num.push_back(str[k]);
 		}
-		number.push_back(Number(i, j, std::stoi(current_num)));//записываем число в массив чисел
+		number.push_back(Number(i, j, std::stoi(current_num)));//Г§Г ГЇГЁГ±Г»ГўГ ГҐГ¬ Г·ГЁГ±Г«Г® Гў Г¬Г Г±Г±ГЁГў Г·ГЁГ±ГҐГ«
 		current_num.clear();
 	}
 	return number;
