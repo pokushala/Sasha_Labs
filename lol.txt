@@ -1,0 +1,604 @@
+// CP_SashaLaba3.cpp: определяет точку входа для консольного приложения.
+//
+
+#include "stdafx.h"
+#include <iostream>
+#include <vector>
+#include <locale.h>
+#include <algorithm>
+#include <fstream>
+
+using namespace std;
+
+/*
+basic rectangle matrix class
+elements has double type
+
+input in in.txt
+output in out.txt
+
+functions in Matrix:
+
+done -get element by index
+done -matrix sum
+done -matrix mult
+done -mult bu double number
+done -matrix transposition
+done -stairs view
+done -det
+-inverse matrix
+*/
+
+
+
+class Matrix {
+public:
+	int n;
+	int m;
+	double **matr;
+	void Create()
+	{
+		matr = new double*[m];
+		for (int i = 0; i < m; i++) {
+			matr[i] = new double[n];
+		}
+	}
+	Matrix() : m(5), n(5) { Create(); }
+	Matrix(int i) : m(i), n(i) { Create(); }
+	Matrix(int i, int j) : m(i), n(j) { Create(); }
+	//Matrix(int i, int j, double **a): m(i), n(j), matr(a){}
+	Matrix(int i, int j, double **a) : m(i), n(j) {
+		Create();
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < n; j++) {
+				matr[i][j] = a[i][j];
+			}
+		}
+	}
+	Matrix(const Matrix& mat) : m(mat.m), n(mat.n) { 
+		Create();
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < n; j++) {
+				matr[i][j] = mat.matr[i][j];
+			}
+		}
+	
+	};
+	~Matrix()
+	{
+		for (int i = 0; i<m; i++)
+			delete[] matr[i];
+		delete[] matr;
+	}
+
+	//methods____________
+
+	Matrix &operator=(const Matrix& mat) {
+		return Matrix(*this);
+	}
+
+
+//get element___________________________
+
+	double& get_elem(int i, int j)
+	{
+		if (i<m && j<n)
+			return matr[i][j];
+		else
+			cout << "Error: 1 wrong index";
+	}
+
+//mult by double number__________________________
+
+	Matrix num_mul(double num)
+	{
+		for (int i = 0; i<m; i++)
+			for (int j = 0; j<n; j++)
+				matr[i][j] *= num;
+		return *this;
+	}
+
+// matrix sum____________________________________
+
+	Matrix& operator+(const Matrix& mat) {
+		if ((m == mat.m) && (n == mat.n)) {
+			for (int i = 0; i < m; i++) {
+				for (int j = 0; j < n; j++) {
+					//matr[i][j] += mat.matr[i][j];
+					matr[i][j] = matr[i][j] + mat.matr[i][j];
+				}
+			}
+		}
+		else {
+			cout << "Размеры не совпадают, нельзя сложить" << endl;
+		}
+		return *this;
+	}
+
+
+//________________________________________________________________
+//_________________________________________________________________________________________________________________
+// получить строку матрицы
+	double* getRow(int i) {
+		if (i >= 0 && i < m)
+			return matr[i];
+		return 0;
+	}
+	
+	double* operator[](int i) {
+		return getRow(i);
+	}
+	
+	
+	
+	// получить столбец матрицы
+	double* getColumn(int ind) {
+		if (ind < 0 || ind >= n) {
+			return 0;
+		}
+		double *c = new double[m];
+		for (int i = 0;i < m;i++) {
+			c[i] = matr[i][ind];
+		}
+		return c;
+	}
+	
+	
+	// поменять местами две строки
+	void swapRows(int ind1, int ind2) {
+		if (ind1 < 0 || ind2 < 0 || ind1 >= m || ind2 >= m) {
+			return;
+		}
+		for (int i = 0;i < n;i++) {
+			swap(matr[ind1][i], matr[ind2][i]);
+		}
+	}
+	
+	// поменять местами два столбца
+	void swapColumns(int ind1, int ind2) {
+		if (ind1 < 0 || ind2 < 0 || ind1 >= n || ind2 >= n) {
+			return;
+		}
+		for (int i = 0;i < m;i++) {
+			swap(matr[i][ind1], matr[i][ind2]);
+		}
+	}
+	// приписывание матрицы b к текущей матрице справа
+	Matrix concateMatrix(Matrix &mat) {
+		Matrix c(m, n + mat.n);
+		for (int i = 0;i < m;i++) {
+			for (int j = 0;j < n;j++) {
+				c[i][j] = matr[i][j];
+			}
+			for (int j = 0;j < mat.n;j++) {
+				c[i][j + n] = mat.matr[i][j];
+			}
+		}
+		return c;
+	}
+	
+
+
+	//_______________________________________________________________________________________________________
+
+
+
+
+
+
+
+
+// matrix multiplication______________________________
+
+	Matrix &operator*(const Matrix& mat) {
+		if (n == mat.m) {
+			//cout << "n" << n << endl;
+			//cout << "m" << m << endl;
+			Matrix a(*this);
+			n = mat.n;
+			double sum = 0.0;
+			//cout << "new m" << m << endl;
+			//cout << "new n" << n << endl;
+			for (int i = 0; i < m; i++) {
+				for (int j = 0; j < n; j++) {
+					for (int k = 0;k < mat.m;k++) {
+						sum += a.matr[i][k] * mat.matr[k][j];
+						//cout  << i << k << " x " <<  k <<  j << endl;
+						//cout << a.matr[i][k] << " x " << mat.matr[k][j] << endl;
+						
+					}
+					//cout << "elem" << sum << endl;
+					matr[i][j] = sum;
+					sum = 0.0;
+				}
+			}
+		}
+		else {
+			cout << "Размеры не подходят для умножения" << endl;
+		}
+		return *this;
+	}
+
+	Matrix transposition() {
+		Matrix temp(n, m);
+		//cout << "im here" << endl;
+		for (int i = 0; i < temp.m; i++) {
+			for (int j = 0; j < temp.n; j++) {
+				//matr[i][j] += mat.matr[i][j];
+				temp.matr[i][j] = matr[j][i];
+			}
+		}
+		return temp;
+	}
+	
+// display matrix on the screen_________________________	
+	
+	void display()
+	{
+		for (int i = 0; i<m; i++)
+		{
+			for (int j = 0; j<n; j++)
+			{
+				cout.width(4);
+				cout << matr[i][j];
+			}
+			cout << endl;
+		}
+	}
+
+
+
+/*
+	Matrix gauss(Matrix &mat) {
+		int i, j, k;
+		int countSwaps = 1;
+		Matrix temp = mat;
+		for (i = 0;i < mat.m;i++) {
+			// находим строку с максимальным первым элементом
+			int imax = i;
+			for (j = i + 1;j < mat.m;j++) {
+				if (abs(temp.matr[j][i]) > abs(temp.matr[imax][i]))
+					imax = j;
+			}
+			for(k=0;k<mat.n;k++){
+				swap(temp.matr[i][k], temp.matr[imax][k]);
+			}
+			countSwaps = -countSwaps*(i != imax ? 1 : -1);
+			//  вычитаем текущую строку из всех остальных
+			for (j = i + 1;j < mat.m;j++) {
+				double q = -temp.matr[j][i] / temp.matr[i][i];
+				for (k = mat.n - 1;k > i;k--) {
+					temp.matr[j][k] += q*temp.matr[i][k];
+				}
+
+			}
+		}
+
+		// умножаем матрицу на -1, если мы сделали  нечётное количество перестановок строк
+		// в итоге определитель результирующей матрицы  будет равен определителю начальной матрицы
+		return temp.num_mul(double(countSwaps));
+	}
+	*/
+	Matrix gauss() {
+		int i, j, k;
+		int countSwaps = 1;
+		Matrix temp(*this);
+		for (i = 0;i < m;++i) {
+			// находим строку с максимальным первым элементом
+			int imax = i;
+			for (j = i + 1;j < m;++j) {
+				if (abs(temp.matr[j][i]) > abs(temp.matr[imax][i]))
+					imax = j;
+			}
+			//if (abs(temp[imax][i]) < 1e-9)
+			//	continue;
+			for (k = 0;k<n;++k) {
+				swap(temp.matr[i][k], temp.matr[imax][k]);
+			}
+			countSwaps = -countSwaps*(i != imax ? 1 : -1);
+			//  вычитаем текущую строку из всех остальных
+			for (j = i + 1;j < m;++j) {
+				double q = -temp.matr[j][i] / temp.matr[i][i];
+				for (k = n - 1;k >= i;--k) {
+					temp.matr[j][k] += q*temp.matr[i][k];
+				}
+
+			}
+		}
+
+		// умножаем матрицу на -1, если мы сделали  нечётное количество перестановок строк
+		// в итоге определитель результирующей матрицы  будет равен определителю начальной матрицы
+		return temp.num_mul(double(countSwaps));
+	}
+
+
+	// определитель треугольной матрицы
+	double detTriang() {
+		double x = 1;
+		for (int i = 0; i < min(m, n);i++) {
+			x *= matr[i][i];
+		}
+		return x;
+	}
+	
+	// определитель матрицы
+	double det() {
+		if (n != m) {
+			return 0;
+		}
+		return ((*this).gauss()).detTriang();
+	}
+
+
+	// приведение матрицы к диагональному виду 
+	Matrix diagonal() {
+		Matrix temp = (*this).gauss();
+		for (int i = 1;i < temp.m;i++) {
+			for (int j = 0;j < i;j++) {
+				if (temp.matr[i][i] == 0) {
+					cout << "Будет деление на ноль" << endl;
+				}
+				double q = -temp.matr[j][i] / temp.matr[i][i];
+				for (int k = temp.n - 1;k >= i;k--) {
+					temp.matr[j][k] += q*temp.matr[i][k];
+				}
+			}
+		}
+		return temp;
+	}
+
+	// удаление столбцов с index1 по index2
+	Matrix eraseColumns(int ind1, int ind2) {
+		//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		Matrix temp(m, n - (ind2 - ind1 + 1));
+		for (int j = 0;j < ind1;j++) {
+			for (int i = 0;i < m;i++) {
+				temp.matr[i][j] = matr[i][j];
+			}
+		}
+		for (int j = ind2 + 1;j < n;j++) {
+			for (int i = 0;i < m;i++) {
+				temp.matr[i][j - ind2 - 1 + ind1] = matr[i][j];
+			}
+		}
+		return temp;
+	}
+	
+	
+
+
+	// обратная матрица, метод Гаусса-Жордана
+	Matrix invert() {
+		Matrix E(m, n);
+		for (int i = 0;i < m;i++) {
+			for (int j = 0;j < n;j++) {
+				if (j == i)
+					E[i][j] = 1;
+				else
+					E[i][j] = 0;
+			}
+		}
+		Matrix temp = (*this).concateMatrix(E);
+		temp.diagonal();
+		if (temp.m == 0) {
+			return temp;
+		}
+		for (int i = 0;i < m;i++) {
+			for (int k = m + m - 1;k >= 0;k--) {
+				temp.matr[i][k] /= temp[i][i];
+			}
+		}
+		return temp.eraseColumns(0, n - 1);
+	}
+};
+
+//inherit square matrix class
+/*
+class sqMatrix {
+public:
+
+};
+
+//inherit vector class
+
+class vMatrix {
+public:
+
+};
+
+/*
+
+чтение из файла размера матрицы и самой матрицы
+
+
+Matrix input_file(ifstream &f, char s[40])
+{
+	f.open(s);
+	//Проверка успешности открытия файла для чтения
+	if (f.fail()) {
+		cout << "\n Ошибка открытия файла";
+		exit(1);
+	}
+	int m;
+	int n;
+	f >> n >> m;
+	cout << "n: " << n << endl << "m: " << m << endl;
+	//Объявление указателей и переменных
+	int i, j;
+	double **a;
+	//Выделение ОП под строки и столбцы матрицы
+	a = new double *[n];
+	if (a == NULL) {
+		cout << "\n Не хватает оперативной памяти под строки";
+		exit(1);
+	}
+	for (i = 0;i< n;i++)
+	{
+		a[i] = new double[m];
+		if (a[i] == NULL) {
+			cout << "\n Не хватает оперативной памяти под столбцы";
+			exit(1);
+		}
+	}
+	//Открытие файла для чтения
+	for (i = 0;i< n;i++)
+	{
+		for (j = 0;j< m;j++)
+			f >> a[i][j];
+	}
+	//Закрытие файла
+	f.close();
+	/*for (int i = 0; i<n; i++)
+	{
+		for (int j = 0; j<m; j++)
+		{
+			cout.width(4);
+			cout << a[i][j];
+		}
+		cout << endl;
+	}
+	return Matrix(n, m, a);
+}
+*/
+
+void task1(ifstream &f, char s[40]) {
+	f.open(s);
+	//Проверка успешности открытия файла для чтения
+	if (f.fail()) {
+		cout << "\n Ошибка открытия файла";
+		exit(1);
+	}
+	int m;
+	int n;
+	double k;
+	f >> k;
+	cout << "coef: " << k << endl;
+	f >> n >> m;
+	//cout << "n: " << n << endl << "m: " << m << endl;
+	int i, j;
+	double **a;
+	//Выделение ОП под строки и столбцы матрицы
+	a = new double *[n];
+	if (a == NULL) {
+		cout << "\n Не хватает оперативной памяти под строки";
+		exit(1);
+	}
+	for (i = 0;i< n;i++)
+	{
+		a[i] = new double[m];
+		if (a[i] == NULL) {
+			cout << "\n Не хватает оперативной памяти под столбцы";
+			exit(1);
+		}
+	}
+	for (i = 0;i< n;i++)
+	{
+		for (j = 0;j< m;j++)
+			f >> a[i][j];
+	}
+	
+	Matrix A(n, m, a);
+
+	f >> n >> m;
+	//cout << "n: " << n << endl << "m: " << m << endl;
+	//Объявление указателей и переменных
+	double **b;
+	//Выделение ОП под строки и столбцы матрицы
+	b = new double *[n];
+	if (b == NULL) {
+		cout << "\n Не хватает оперативной памяти под строки";
+		exit(1);
+	}
+	for (i = 0;i< n;i++)
+	{
+		b[i] = new double[m];
+		if (b[i] == NULL) {
+			cout << "\n Не хватает оперативной памяти под столбцы";
+			exit(1);
+		}
+	}
+	//Открытие файла для чтения
+	for (i = 0;i< n;i++)
+	{
+		for (j = 0;j< m;j++)
+			f >> b[i][j];
+	}
+
+	Matrix B(n, m, b);
+
+	f >> n >> m;
+	//cout << "n: " << n << endl << "m: " << m << endl;
+	double **c;
+	//Выделение ОП под строки и столбцы матрицы
+	c = new double *[n];
+	if (c == NULL) {
+		cout << "\n Не хватает оперативной памяти под строки";
+		exit(1);
+	}
+	for (i = 0;i< n;i++)
+	{
+		c[i] = new double[m];
+		if (c[i] == NULL) {
+			cout << "\n Не хватает оперативной памяти под столбцы";
+			exit(1);
+		}
+	}
+	for (i = 0;i< n;i++)
+	{
+		for (j = 0;j< m;j++)
+			f >> c[i][j];
+	}
+
+	Matrix C(n, m, c);
+	f.close();
+	A.display();
+	cout << endl;
+	B.display();
+	cout << endl;
+	C.display();
+	cout << endl;
+	Matrix Bt = B.transposition();
+	//Bt.display();
+	Matrix D = A + Bt.num_mul(k)*(C.invert());
+	//double d = D.detTriang();
+	//cout << "hjdj" << d;
+	D.display();
+}
+
+int main() {
+	setlocale(LC_ALL, "Russian");
+	
+	Matrix A(3, 2);
+	for (int i = 0; i<3; i++)
+	{
+		for (int j = 0; j<2; j++)
+			A.get_elem(i, j) = i + j;
+	}
+	A.display();
+	//cout << endl <<"after transposition"<< endl;
+	
+	//Matrix B=A.transposition();
+	//B.display();
+	//cout << endl << endl;
+	//A.display();
+	ifstream f;
+	task1(f, "in.txt");
+	//Matrix M = input_file(f, "in.txt");
+	//M.display();
+	//Matrix M1 = input_file(f, "in.txt");
+	//M1.display();
+	//cout << endl << "after transposition" << endl;
+	//Matrix H = M.transposition();
+	//H.display();
+	//cout << endl << endl;
+	//cout << "\n After multiply by 0.5\n" << endl;
+	//M.num_mul(0.5);
+	//M.display();
+
+	
+	//(A + M).display();
+	
+	//(M*A).display();
+	cout << "six" << endl;
+	return 0;
+}
